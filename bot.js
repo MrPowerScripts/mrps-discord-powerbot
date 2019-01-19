@@ -125,7 +125,7 @@ function clearMotion(msg) {
         msg.delete()
       })
 
-    
+    console.log(msgPublic)
     discord.channels.get(config.channels.motionVotingPublic)
       .fetchMessages({around: activeMotion.msgPublic, limit: 1})
       .then(messages => {
@@ -169,7 +169,7 @@ function updateMotionStatus() {
               motion.passed = (parseInt(motion.votes.yea) / parseInt(motion.votes.nay).toFixed(2) > .50)
                 ? true
                 : false
-
+        .error(error => writeLog(error))
               msg.edit(`
 ${msg.content}
 Vote Passed: ${motion.passed}
@@ -216,12 +216,15 @@ function bot(bot) {
     switch(cmd) {
       // check to see if the bot is alive
       case "ping":
+         writeLog("ping")
         msg.reply('pong')
         break
       case "motion":
+        writeLog("casting a motion")
         motionVote(line, msg)
         break
       case "clearmotion":
+        writeLog("clearing motions")
         clearMotion(msg)
       default:
     }

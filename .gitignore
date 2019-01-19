@@ -4,5 +4,6 @@ node_modules
 bot.bin.js
 .DS_Store
 config.json
+deploy.sh
 *~
 .env*
