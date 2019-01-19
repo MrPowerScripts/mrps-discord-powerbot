@@ -117,7 +117,7 @@ function clearMotion(msg) {
   let activeMotion = motions.find({"author": {"$eq": msg.author.id}})
 
   if (activeMotion.length) {
-    
+    writeLog(`clearing: ${activeMotion}`)
     discord.channels.get(config.channels.motionVoting)
       .fetchMessages({around: activeMotion.msg, limit: 1})
       .then(messages => {
@@ -125,7 +125,6 @@ function clearMotion(msg) {
         msg.delete()
       })
 
-    console.log(msgPublic)
     discord.channels.get(config.channels.motionVotingPublic)
       .fetchMessages({around: activeMotion.msgPublic, limit: 1})
       .then(messages => {
@@ -137,6 +136,7 @@ function clearMotion(msg) {
 
     msg.author.send("Your last motion has been deleted. You may create a new one!")
   } else {
+    writeLog(`No motion found`)
     msg.author.send('You have no active motions!')
   }
 }
