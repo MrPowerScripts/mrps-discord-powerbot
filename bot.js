@@ -198,6 +198,7 @@ Yea: ${motion.votes.yea} - Nay: ${motion.votes.nay}
 // THIS IS THE MAGIC RIGHT HERE YA'LL
 function bot(bot) {
   discord.on('ready', () => { 
+    discord.channels.get(config.channels.general).send("bot starting")
     discord.setInterval(() => { // main loop runner
       updateMotionStatus()
     }, 1000)
