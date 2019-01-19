@@ -1,0 +1,8 @@
+*.log
+node_modules
+*.db
+bot.bin.js
+.DS_Store
+config.json
+*~
+.env*

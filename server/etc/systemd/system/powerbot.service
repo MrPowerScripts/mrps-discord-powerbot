@@ -1,0 +1,7 @@
+[Unit]
+Description=Powerbot App
+
+[Service]
+EnvironmentFile=/var/live/powerbot/.env
+ExecStart=/usr/bin/node /var/live/powerbot/bot.bin.js
+Restart=always

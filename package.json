@@ -1,0 +1,39 @@
+{
+    "name": "mrps-powerbot",
+    "version": "1.0.0",
+    "description": "Discord bot for MrPowerScripts.com",
+    "main": "bot.js",
+    "homepage": "https://mrpowerscripts.com",
+    "maintainers": [
+        "MrPowerScripts"
+    ],
+    "author": "MrPowerScripts",
+    "license": "MIT",
+    "repository": {
+        "url": "https://github.com/mrpowerscripts/power-bot",
+        "type": "git"
+    },
+    "dependencies": {
+        "discord.js": "^11.4.2",
+        "forever": "^0.15.3",
+        "lokijs": "^1.5.6",
+        "npm": "^6.5.0",
+        "winston": "^3.1.0"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-preset-env": "^1.7.0",
+        "babel-register": "^6.26.0",
+        "babel-watch": "^2.0.8"
+    },
+    "scripts": {
+        "start": "NODE_ENV=dev babel-node bot.js",
+        "build": "babel bot.js -o bot.bin.js",
+        "_dev_run": "NODE_ENV=dev node bot.bin.js",
+        "_prod_run": "NODE_ENV=production forever start bot.bin.js",
+        "watch": "NODE_ENV=dev babel-watch bot.js && pkill node",
+        "prod": "npm run build && npm run _prod_run",
+        "dev": "npm run build && npm run _dev_run",
+        "stop": "forever stopall"
+    }
+}

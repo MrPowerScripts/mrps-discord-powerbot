@@ -1,0 +1,14 @@
+{
+  "discordToken": "",
+  "discordTokenBeta": "",
+  "channels": {
+    "motionVotingPublic": "",
+    "motionVoting": "",
+    "general": ""
+  },
+  "devchannels": {
+    "motionVotingPublic": "",
+    "motionVoting": "",
+    "general": ""
+  }
+}
