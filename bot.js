@@ -67,7 +67,7 @@ function motionVote(motionText, msg) {
   let existingMotion = motions.find({author: {"$eq": msg.author.id}})
   if (existingMotion.length) {
     let endDate = new Date(existingMotion[0].voteEnd)
-    msg.author.send(`Hey! You already have an active motion! You can make a new one after ${endDate}`)
+    msg.author.send(`Hey! You already have an active motion! You can remove the current one with !clearmotion or wait till after your current motione ends`)
     return
   }
 
@@ -119,6 +119,7 @@ function clearMotion(msg) {
 
   if (activeMotion.length) {
     writeLog(`clearing: ${activeMotion}`)
+    
     discord.channels.get(config.channels.motionVoting)
       .fetchMessages({around: activeMotion.msg, limit: 1})
       .then(messages => {
@@ -129,7 +130,9 @@ function clearMotion(msg) {
     discord.channels.get(config.channels.motionVotingPublic)
       .fetchMessages({around: activeMotion.msgPublic, limit: 1})
       .then(messages => {
+        writeLog(messages)
         const msgPublic = messages.first()
+        //writeLog(msgPublic)
         msgPublic.delete()
       })
 
