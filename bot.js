@@ -49,8 +49,8 @@ console.log(`${process.env.NODE_ENV === 'production' ? 'error' : 'debug'}`)
 const logger = winston.createLogger({
   level: `${process.env.NODE_ENV === 'production' ? 'error' : 'debug'}`,
   transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.File({ filename: 'combined.log' }),
+    new winston.transports.File({ filename: 'error.log', level: 'error', maxsize: 1048576 }),
+    new winston.transports.File({ filename: 'combined.log', maxsize: 1048576  }),
     new winston.transports.Console({colorize: true}),
   ]
 })
@@ -173,7 +173,8 @@ function updateMotionStatus() {
               motion.passed = (parseInt(motion.votes.yea) / parseInt(motion.votes.nay).toFixed(2) > .50)
                 ? true
                 : false
-        .error(error => writeLog(error))
+      .error(error => writeLog(error))
+              
               msg.edit(`
 ${msg.content}
 Vote Passed: ${motion.passed}
@@ -195,6 +196,20 @@ Yea: ${motion.votes.yea} - Nay: ${motion.votes.nay}
       // motion is finished, so we'll get rid of everything. It's saved in discord anyway
       motions.remove(motion)
     })
+  }
+}
+
+function hasRole(msg, role) {
+  
+  let allowedRole = msg.guild.roles.find(x => x.name === `${role}`)
+
+  if (msg.member.roles.has(allowedRole.id)) {
+    writeLog(`${msg.author.id} has role ${role}`)
+    return true
+  } else {
+    writeLog(`${msg.author.id} doesn't have role ${role}`)
+    msg.author.send("Power Up your experience and get access to cool stuff. Visit https://bit.ly/mrps-powerup to learn more")
+    return false
   }
 }
 
@@ -222,15 +237,21 @@ function bot(bot) {
       // check to see if the bot is alive
       case "ping":
          writeLog("ping")
-        msg.reply('pong')
+         if (hasRole(msg, 'Powered Up')) {
+          msg.reply('pong')
+        }
         break
       case "motion":
         writeLog("casting a motion")
-        motionVote(line, msg)
+        if (hasRole(msg, 'Powered Up')) {
+          motionVote(line, msg)
+        }
         break
       case "clearmotion":
         writeLog("clearing motions")
-        clearMotion(msg)
+        if (hasRole(msg, 'Powered Up')) {
+          clearMotion(msg)
+        }
       default:
     }
   })
