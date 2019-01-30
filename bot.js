@@ -106,7 +106,7 @@ Voting ends: ${new Date(voteEnd)}
     motion.msg = msg.id
   })
 
-    writeLog(`adding motion : ${motion}`)
+    writeLog(`adding motion : ${JSON.stringify(motion)}`)
     motions.insert(motion)
   } catch (e) {
     logger.log(e)
