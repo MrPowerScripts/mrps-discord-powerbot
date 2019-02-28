@@ -1,12 +1,13 @@
 import Discord from 'discord.js'
-import winston from 'winston'
+import { writeLog } from './utils'
 import loki from 'lokijs'
 import config from './config.json'
+import veditor from './veditor'
+import 'babel-polyfill'
 
 if (process.env.NODE_ENV === "dev") {
   config.channels = config.devchannels
 }
-
 
 let ENV = process.env.NODE_ENV
 let discord = new Discord.Client();
@@ -45,20 +46,7 @@ function databaseInitialize() {
 }
 
 console.log(`${process.env.NODE_ENV === 'production' ? 'error' : 'debug'}`)
-// Configure logger settings
-const logger = winston.createLogger({
-  level: `${process.env.NODE_ENV === 'production' ? 'error' : 'debug'}`,
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error', maxsize: 1048576 }),
-    new winston.transports.File({ filename: 'combined.log', maxsize: 1048576  }),
-    new winston.transports.Console({colorize: true}),
-  ]
-})
 
-// Some logger function
-function writeLog(message) {
-  logger.log({level: 'debug', message: message})
-}
 
 function motionVote(motionText, msg) {
   let motions = db.getCollection('motions')
@@ -239,6 +227,13 @@ function bot(bot) {
          writeLog("ping")
          if (hasRole(msg, 'Powered Up')) {
           msg.reply('pong')
+        }
+        break
+      case "build":
+        writeLog("building from script")
+        if (hasRole(msg, 'MrPowerScripts')) {
+          writeLog(veditor)
+          veditor(line)
         }
         break
       case "motion":
