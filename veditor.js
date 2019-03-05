@@ -3,13 +3,11 @@ import yaml from 'js-yaml'
 import fs from 'fs'
 import glob from 'glob'
 import speak from 'espeak'
-import videoshow from 'videoshow'
-import videoStitch from 'video-stitch'
-let videoConcat = videoStitch.concat;
 import { writeLog, SCENE_FILES_DIR, videoOptions } from './utils'
+import { path as ffmpegPath} from '@ffmpeg-installer/ffmpeg';
+import { spawnSync } from 'child_process';
 
 // maybe need this? qt-faststart
-
 export default async function build(scriptURL) {
     writeLog("veditor- building script")
 
@@ -38,6 +36,7 @@ export default async function build(scriptURL) {
     let promises = []
     let media = []
 
+    // process every scene to create individual scene videos
     script.scenes.forEach(async (scene, idx) => {
       let sceneMedia = {}
       let pre = `${filePrefix}-${idx}` // prefix all files to make them unique per scene
@@ -83,48 +82,46 @@ export default async function build(scriptURL) {
     media.forEach(async (item, idx, arr) => {
       if(item.hasOwnProperty('image')) {
         promises.push(new Promise((resolve, reject) => {
-          videoshow([item.image], videoOptions)
-            .audio(item.audio)
-            .save(`./${SCENE_FILES_DIR}/${item.prefix}-stitch.mp4`)
-            .on('start', (command) => {
-              console.log('ffmpeg process started:', command)
-            })
-            .on('error', (err, stdout, stderr) => {
-              console.error('Error:', err)
-              console.error('ffmpeg stderr:', stderr)
-              reject(err);
-            })
-            .on('end', (output) => {
-              console.log('Video created in:', output)
-              media[idx].video = output
-              resolve(output);
-            })
+
+        let videoName = `${item.image.replace(/\.[^/.]+$/, "")}-stitch.mp4`
+
+        let args = ['-y', '-loop', '1', 
+        '-i', `${item.image}`, 
+        '-i', `${item.audio}`, 
+        '-vf', 'pad=ceil(iw/2)*2:ceil(ih/2)*2',
+        '-c:v', 'libx264', 
+        '-s', '1920x1080',
+        '-r', '60',
+        '-strict', 'experimental',
+        '-tune', 'stillimage', 
+        '-c:a', 'aac', 
+        '-b:a', '192k', 
+        '-pix_fmt', 'yuv420p',
+        '-shortest', videoName
+        ]
+
+        //./ffmpeg -i 1.mp4 -acodec libvo_aacenc -vcodec libx264 -s 1920x1080 -r 60 -strict experimental 1.mp4
+
+        media[idx].video = videoName
+
+        let fileName = videoName.replace(`./${SCENE_FILES_DIR}/`, '')
+        console.log(fileName)
+        spawnSync('echo', [`file ${fileName}`, '>>', `${__dirname}/${SCENE_FILES_DIR}/files.txt`], {shell: true, stdio: 'inherit'})
+
+        const ffmpeg = spawnSync(ffmpegPath, args);
+          
+        args = ['-y', '-safe', '0', 
+                '-f', 'concat', 
+                '-i', `${__dirname}/${SCENE_FILES_DIR}/files.txt`, 
+                '-c', 'copy', 
+                `${__dirname}/${SCENE_FILES_DIR}/final.mp4`]
+
+         let resp = spawnSync(ffmpegPath, args);
+
+          console.log(String(resp.stdout))
+          console.log(String(resp.stderr))
           })
         )
       }
     })
-
-    // This doesn't work :((
-    // await Promise.all(promises)
-    // console.log('we waited againd')
-
-    //   writeLog('Building final video')
-    //   glob(`${__dirname}/${SCENE_FILES_DIR}/*stitch*`, {}, async (err, files)=>{
-    //     writeLog('showing the stich files')
-    //     console.log(files)
-
-    //     let fileList = files.map(file => ({fileName: file}))
-        
-    //     console.log(fileList)
-    //     videoConcat({
-    //       silent: true, // optional. if set to false, gives detailed output on console
-    //       overwrite: true // optional. by default, if file already exists, ffmpeg will ask for overwriting in console and that pause the process. if set to true, it will force overwriting. if set to false it will prevent overwriting.
-    //     })
-    //     .clips(fileList)
-    //     .output(`${__dirname}/${SCENE_FILES_DIR}/complete.mp4`) //optional absolute file name for output file
-    //     .concat()
-    //     .then((outputFileName) => {
-          
-    //     })
-    //   })
 } // end build
