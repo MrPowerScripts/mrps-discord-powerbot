@@ -136,6 +136,24 @@ function clearMotion(msg) {
   }
 }
 
+function draftVideoPublished(url) {
+  discord.channels.get(config.channels.motionVotingPublic)
+  .send(`
+New draft published:
+${url}
+`).then(msg => {
+  msg.react("🔥").then(what => msg.react("💩")); 
+})//.then(msg => motion.msgPublic = msg.id)
+  
+  discord.channels.get(config.channels.motionVoting)
+  .send(`
+New draft published:
+${url}
+`).then(msg => {
+  msg.react("🔥").then(what => msg.react("💩")); 
+})
+}
+
 function updateMotionStatus() {
   let motions = db.getCollection('motions')
   let finished = motions.find({complete: false, voteEnd: { "$lt": Date.now()} })
@@ -214,7 +232,7 @@ function bot(bot) {
     writeLog('ready')
   })
 
-  discord.on('message', msg => {
+  discord.on('message', async msg => {
     if (msg.author.bot) return;
     let commandChar = ENV == 'dev' ? '#' : '!'
     if (msg.content.indexOf(commandChar) !== 0) return;
@@ -241,7 +259,7 @@ function bot(bot) {
       case "publish":
         writeLog('publishing')
         if (hasRole(msg, 'MrPowerScripts')) {
-          publish(line)
+          publish(line, draftVideoPublished)
         }
         break
       case "motion":

@@ -3,6 +3,8 @@ import yaml from 'js-yaml'
 import fs from 'fs'
 import glob from 'glob'
 import speak from 'espeak'
+import getURLs from 'get-urls'
+//import festival from 'festival'
 import { writeLog, SCENE_FILES_DIR, APP_DIR, arcURL } from './utils'
 import { path as ffmpegPath} from '@ffmpeg-installer/ffmpeg';
 import { spawnSync } from 'child_process';
@@ -47,6 +49,7 @@ exports.build = async function build(scriptURL) {
       let audio = `${SCENE_FILES_DIR}/${pre}-audio.wav`
       if (scene.audio_media == 'tts') {
         // auto generate tts audio
+        //festival.toSpeech(scene.audio_script, `${SCENE_FILES_DIR}/${pre}-audio.mp3`)
         speak.speak(scene.audio_script, (err, wave) => {
           fs.writeFileSync(audio, wave.buffer)
         })
@@ -132,7 +135,7 @@ exports.build = async function build(scriptURL) {
     })
 } // end build
 
-exports.publish = async function publish(params) {
+exports.publish = async function publish(params, annoucenment) {
   let [
     publishType,
     episode,
@@ -141,29 +144,22 @@ exports.publish = async function publish(params) {
 
   switch (publishType) {
     case 'draft':
-      exports.draft(episode, scene)
-      break
+      return await exports.draft(episode, annoucenment)
+    case 'test':
+      return await exports.test(episode, annoucenment)
   }
 
   //console.log(publishType, episode, scene)
 }
 
-exports.draft = async function draft(episode, scene=null) {
-  
-  if (scene) {
-    let script = await rp(arcURL(episode)).then(async resp => yaml.safeLoad(resp))
-    writeLog(script)
-    let sceneScript = script.scenes[scene - 1]
-  
-    console.log(sceneScript)
-  } else {
-
+exports.draft = async function draft(episode, announcement) {
     console.log(APP_DIR)
     console.log(SCENE_FILES_DIR)
 
     exports.build(arcURL(episode)).then(nothing => {
+
       let output = spawnSync(`${APP_DIR}/venv/bin/python3`, [`${APP_DIR}/youtube-upload/bin/youtube-upload`,
-        `--title="Automated Reality"`,
+        `--title="ARC DRAFT"`,
         `--description=Automated Reality Channel`,
         `--tags=ARC Channel`,
         `--default-language=en`,
@@ -173,12 +169,34 @@ exports.draft = async function draft(episode, scene=null) {
         `--privacy=unlisted`,
         `${SCENE_FILES_DIR}/final.mp4`
         ], {})
+      
+        let uploadOutput = String(output.stdout)
+        console.log(uploadOutput)
+        console.log(String(output.stderr))
 
-      console.log(String(output.stdout))
-      console.log(String(output.stderr))
+        try {
+        annoucenment(Array.from(getURLs(uploadOutput))[0])
+        } catch (e) {console.log(e)}
+
     })
-  
-  }
+}
 
+exports.test = async function test(episode, annoucenment) {
+ 
+    console.log(APP_DIR)
+    console.log(SCENE_FILES_DIR)
 
+    exports.build(arcURL(episode)).then(nothing => {
+      
+    let uploadOutput = `
+  Using client secrets: /Users/fernando/git/me/mrpowerscripts/powerbot-discord/safe/client_secret.json
+  Using credentials file: /Users/fernando/.youtube-upload-credentials.json
+  Start upload: /Users/fernando/git/me/mrpowerscripts/powerbot-discord/workdir/final.mp4
+  Video URL: https://www.youtube.com/watch?v=HNRMzGef9Cc
+      `
+        console.log(uploadOutput)
+        try {
+        annoucenment(Array.from(getURLs(uploadOutput))[0])
+        } catch (e) { console.log(e)}
+    })
 }
