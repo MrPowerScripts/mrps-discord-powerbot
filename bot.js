@@ -2,11 +2,16 @@ import Discord from 'discord.js'
 import { writeLog } from './utils'
 import loki from 'lokijs'
 import config from './config.json'
-import veditor from './veditor'
+import { build, publish } from './veditor'
 import 'babel-polyfill'
 
 if (process.env.NODE_ENV === "dev") {
   config.channels = config.devchannels
+
+  var lines = process.stdout.getWindowSize()[1];
+  for(var i = 0; i < lines; i++) {
+      console.log('\r\n');
+  }
 }
 
 let ENV = process.env.NODE_ENV
@@ -19,8 +24,6 @@ let {
 
 let botToken = ENV === 'dev' ? config.discordTokenBeta : config.discordToken
 if (DISCORD_TOKEN){ botToken = DISCORD_TOKEN }
-
-
 
 console.log(process.env.NODE_ENV)
 
@@ -232,8 +235,13 @@ function bot(bot) {
       case "build":
         writeLog("building from script")
         if (hasRole(msg, 'MrPowerScripts')) {
-          writeLog(veditor)
-          veditor(line)
+          build(line)
+        }
+        break
+      case "publish":
+        writeLog('publishing')
+        if (hasRole(msg, 'MrPowerScripts')) {
+          publish(line)
         }
         break
       case "motion":

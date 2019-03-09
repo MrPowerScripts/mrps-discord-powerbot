@@ -1,6 +1,8 @@
 import winston from 'winston'
 
-export const SCENE_FILES_DIR = `${__dirname}/workdir`
+export const APP_DIR = __dirname
+export const SCENE_FILES_DIR = `${APP_DIR}/workdir`
+export const ARC_SCRIPTS = "https://raw.githubusercontent.com/MrPowerScripts/automated-reality-channel/master/scripts/"
 
 export const videoOptions = {
   fps: 30,
@@ -29,4 +31,18 @@ const logger = winston.createLogger({
 // Some logger function
 export function writeLog(message) {
   logger.log({level: 'debug', time: Math.floor((new Date).getTime()/1000), message: message})
+}
+
+export function arcURL(ep) {
+  if (ep === 'test') {
+    return "https://raw.githubusercontent.com/MrPowerScripts/automated-reality-channel/master/sample-script.yml"
+  } else {
+           return ARC_SCRIPTS + `arc-ep-${ep}.yml`;
+         }
+}
+
+function youtube_parser(url){
+  var regExp = /^.*(youtu.be\/|youtube(-nocookie)?.com\/(v\/|.*u\/\w\/|embed\/|.*v=))([\w-]{11}).*/;
+  var match = url.match(regExp);
+  return (match&&match[7].length==11)? match[7] : false;
 }
