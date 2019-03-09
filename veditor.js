@@ -3,7 +3,7 @@ import yaml from 'js-yaml'
 import fs from 'fs'
 import glob from 'glob'
 import speak from 'espeak'
-import { writeLog, SCENE_FILES_DIR, videoOptions } from './utils'
+import { writeLog, SCENE_FILES_DIR } from './utils'
 import { path as ffmpegPath} from '@ffmpeg-installer/ffmpeg';
 import { spawnSync } from 'child_process';
 
@@ -23,7 +23,7 @@ export default async function build(scriptURL) {
     }
     // cleanup workdir first for each scene
     writeLog('Cleanup workdir')
-    glob(`${__dirname}/${SCENE_FILES_DIR}/*`, {}, (err, files)=>{
+    glob(`${SCENE_FILES_DIR}/*`, {}, (err, files)=>{
       files.forEach(file => fs.unlinkSync(file))
     })
 
@@ -44,7 +44,7 @@ export default async function build(scriptURL) {
 
 
       writeLog('downloading scene audio')
-      let audio = `./${SCENE_FILES_DIR}/${pre}-audio.wav`
+      let audio = `${SCENE_FILES_DIR}/${pre}-audio.wav`
       if (scene.audio_media == 'tts') {
         // auto generate tts audio
         speak.speak(scene.audio_script, (err, wave) => {
@@ -54,7 +54,7 @@ export default async function build(scriptURL) {
       sceneMedia.audio = audio
 
 
-      let visual = `./${SCENE_FILES_DIR}/${pre}-visual.${scene.visual_type}`
+      let visual = `${SCENE_FILES_DIR}/${pre}-visual.${scene.visual_type}`
       writeLog('cehcking scene visual')
       switch (scene.visual_type) {
         case "jpg":
@@ -104,22 +104,24 @@ export default async function build(scriptURL) {
 
         media[idx].video = videoName
 
-        let fileName = videoName.replace(`./${SCENE_FILES_DIR}/`, '')
+        let fileName = videoName.replace(`${SCENE_FILES_DIR}/`, '')
         console.log(fileName)
-        spawnSync('echo', [`file ${fileName}`, '>>', `${__dirname}/${SCENE_FILES_DIR}/files.txt`], {shell: true, stdio: 'inherit'})
+        spawnSync('echo', [`file ${fileName}`, '>>', `${SCENE_FILES_DIR}/files.txt`], {shell: true, stdio: 'inherit'})
 
         const ffmpeg = spawnSync(ffmpegPath, args);
           
         args = ['-y', '-safe', '0', 
                 '-f', 'concat', 
-                '-i', `${__dirname}/${SCENE_FILES_DIR}/files.txt`, 
+                '-i', `${SCENE_FILES_DIR}/files.txt`, 
                 '-c', 'copy', 
-                `${__dirname}/${SCENE_FILES_DIR}/final.mp4`]
+                `${SCENE_FILES_DIR}/final.mp4`]
 
          let resp = spawnSync(ffmpegPath, args);
 
           console.log(String(resp.stdout))
           console.log(String(resp.stderr))
+
+          
           })
         )
       }

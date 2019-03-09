@@ -8,3 +8,5 @@ deploy.sh
 *~
 .env*
 workdir
+venv
+safe

@@ -1,6 +1,6 @@
 import winston from 'winston'
 
-export const SCENE_FILES_DIR = "workdir"
+export const SCENE_FILES_DIR = `${__dirname}/workdir`
 
 export const videoOptions = {
   fps: 30,
