@@ -18,6 +18,8 @@ exports.build = async function build(scriptURL) {
       case "test":
         scriptURL = arcURL('test')
         break
+      default:
+        scriptURL = arcURL(scriptURL)
     }
     // make the workdir if it doesn't exist
     if (!fs.existsSync(SCENE_FILES_DIR)){
@@ -168,14 +170,13 @@ exports.draft = async function draft(episode, announcement) {
         `--embeddable=True`,
         `--privacy=unlisted`,
         `${SCENE_FILES_DIR}/final.mp4`
-        ], {})
+        ],  { stdio: 'pipe', stderr: 'pipe' })
       
-        let uploadOutput = String(output.stdout)
-        console.log(uploadOutput)
-        console.log(String(output.stderr))
+        console.log(output.status);
+        let uploadOutput = output.stdout.toString()
 
         try {
-        annoucenment(Array.from(getURLs(uploadOutput))[0])
+          announcement(Array.from(getURLs(uploadOutput))[0])
         } catch (e) {console.log(e)}
 
     })
