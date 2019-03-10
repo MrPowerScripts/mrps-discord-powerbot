@@ -42,12 +42,12 @@
         "babel-watch": "^2.0.8"
     },
     "scripts": {
-        "start": "NODE_ENV=prod npm run build && node bot.bin.js",
+        "start": "NODE_OPTIONS=--max_old_space_size=4096 NODE_ENV=prod npm run build && node bot.bin.js",
         "build": "babel bot.js -o bot.bin.js",
         "_dev_run": "NODE_ENV=dev node bot.bin.js",
         "_prod_run": "NODE_ENV=production forever start bot.bin.js",
-        "watch-dev": "NODE_ENV=dev babel-watch bot.js && pkill node",
-        "watch-prod": "NODE_ENV=prod babel-watch bot.js && pkill node",
+        "watch-dev": "NODE_OPTIONS=--max_old_space_size=8096 NODE_ENV=dev babel-watch bot.js && pkill node",
+        "watch-prod": "NODE_OPTIONS=--max_old_space_size=8096 NODE_ENV=prod babel-watch bot.js && pkill node",
         "prod": "npm run build && npm run _prod_run",
         "dev": "npm run build && npm run _dev_run",
         "stop": "forever stopall"

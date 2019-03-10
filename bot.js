@@ -281,6 +281,10 @@ function bot(bot) {
   .catch(error => writeLog(error))
 }
 
+process.on('error', (error) => {
+  console.log(error)
+})
+
 process.on('SIGINT', () => {
   console.log("flushing database");
   db.close();
