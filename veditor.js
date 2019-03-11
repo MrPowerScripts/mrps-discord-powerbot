@@ -177,13 +177,14 @@ exports.publish = async function publish(params, annoucenment) {
 exports.draft = async function draft(episode, announcement) {
   console.log(APP_DIR)
   console.log(SCENE_FILES_DIR)
+  let episodeURL = arcURL(episode)
 
-  exports.build(arcURL(episode)).then(nothing => {
+  exports.build(episodeURL).then(nothing => {
 
     try {
       let output = spawnSync(`${APP_DIR}/venv/bin/python3`, [`${APP_DIR}/youtube-upload/bin/youtube-upload`,
         `--title="ARC DRAFT"`,
-        `--description=Automated Reality Channel`,
+        `--description=Automated Reality Channel Episode ${1} \n This video was automatically generated from this script file ${episodeURL}`,
         `--tags=ARC Channel`,
         `--default-language=en`,
         `--default-audio-language=en`,
@@ -209,13 +210,14 @@ exports.draft = async function draft(episode, announcement) {
 exports.live = async function live(episode, announcement) {
   console.log(APP_DIR)
   console.log(SCENE_FILES_DIR)
+  let episodeURL = arcURL(episode)
 
-  exports.build(arcURL(episode)).then(nothing => {
+  exports.build(episodeURL).then(nothing => {
 
     try {
       let output = spawnSync(`${APP_DIR}/venv/bin/python3`, [`${APP_DIR}/youtube-upload/bin/youtube-upload`,
         `--title="Automated Reality Channel Episode ${1}`,
-        `--description=Automated Reality Channel Episode ${1}`,
+        `--description=Automated Reality Channel Episode ${1} \n This video was automatically generated from this script file ${episodeURL}`,
         `--tags=ARC Channel`,
         `--default-language=en`,
         `--default-audio-language=en`,
