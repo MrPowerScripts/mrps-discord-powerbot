@@ -223,7 +223,7 @@ exports.live = async function live(episode, announcement) {
         `--embeddable=True`,
         `--privacy=unlisted`,
       `${SCENE_FILES_DIR}/final.mp4`
-      ], { stdio: 'pipe', stderr: 'pipe' })
+      ], {})
 
 
       console.log(output.status);

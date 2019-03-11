@@ -253,13 +253,17 @@ function bot(bot) {
       case "build":
         writeLog("building from script")
         if (hasRole(msg, 'MrPowerScripts')) {
-          build(line)
+          try {
+            build(line)
+          } catch (e) { console.log(e)}
         }
         break
       case "publish":
         writeLog('publishing')
         if (hasRole(msg, 'MrPowerScripts')) {
-          publish(line, draftVideoPublished)
+          try {
+            publish(line, draftVideoPublished)
+          } catch (e){ console.log(e)}
         }
         break
       case "motion":
@@ -276,6 +280,8 @@ function bot(bot) {
       default:
     }
   })
+
+  discord.on('error', error => console.log(error))
 
   discord.login(botToken)
   .catch(error => writeLog(error))
