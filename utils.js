@@ -36,9 +36,11 @@ export function writeLog(message) {
 export function arcURL(ep) {
   if (ep === 'test') {
     return "https://raw.githubusercontent.com/MrPowerScripts/automated-reality-channel/master/sample-script.yml"
+  } else if (isNaN(parseInt(ep))) {
+    return ep
   } else {
-           return ARC_SCRIPTS + `arc-ep-${ep}.yml`;
-         }
+    return ARC_SCRIPTS + `arc-ep-${ep}.yml`;
+  }
 }
 
 function youtube_parser(url){

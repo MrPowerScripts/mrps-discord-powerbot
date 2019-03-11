@@ -20,6 +20,7 @@ exports.build = async function build(scriptURL) {
       break
     default:
       scriptURL = arcURL(scriptURL)
+
   }
   // make the workdir if it doesn't exist
   if (!fs.existsSync(SCENE_FILES_DIR)) {
@@ -35,6 +36,7 @@ exports.build = async function build(scriptURL) {
   let filePrefix = Math.random().toString(36).substr(2, 5)
 
   writeLog('downloading script')
+  console.log(scriptURL)
   let script = await rp(scriptURL).then(async resp => yaml.safeLoad(resp)) // loading the script yaml file
 
   let promises = []
@@ -164,11 +166,11 @@ exports.publish = async function publish(params, annoucenment) {
 
   switch (publishType) {
     case 'draft':
-      return await exports.draft(episode, annoucenment).error(error => console.log(error))
+      return await exports.draft(episode, annoucenment)
     case 'live':
-      return await exports.live(episode, annoucenment).error(error => console.log(error))
+      return await exports.live(episode, annoucenment)
     case 'test':
-      return await exports.test(episode, annoucenment).error(error => console.log(error))
+      return await exports.test(episode, annoucenment)
   }     
 
   //console.log(publishType, episode, scene)
@@ -178,54 +180,52 @@ exports.draft = async function draft(episode, announcement) {
   console.log(APP_DIR)
   console.log(SCENE_FILES_DIR)
   let episodeURL = arcURL(episode)
+  let linkURL = episodeURL.replace('raw.githubusercontent', 'github').replace('/master', '/blob/master')
 
   exports.build(episodeURL).then(nothing => {
 
-    try {
+    writeLog('uploading draft video')
       let output = spawnSync(`${APP_DIR}/venv/bin/python3`, [`${APP_DIR}/youtube-upload/bin/youtube-upload`,
-        `--title="ARC DRAFT"`,
-        `--description=Automated Reality Channel Episode ${1} \n This video was automatically generated from this script file ${episodeURL}`,
+        `--title=Automated Reality Channel Episode ${episode}`,
+        `--description=Automated Reality Channel Episode ${episode} \n\n This video was automatically generated from this script file ${linkURL}`,
         `--tags=ARC Channel`,
         `--default-language=en`,
         `--default-audio-language=en`,
         `--client-secrets=${APP_DIR}/safe/client_secret.json`,
         `--embeddable=True`,
         `--privacy=unlisted`,
-      `${SCENE_FILES_DIR}/final.mp4`
-      ], { stdio: 'pipe', stderr: 'pipe' })
-    } catch (e) {
-      console.log(e)
-    }
+      `${SCENE_FILES_DIR}/final.mkv`
+      ], { stdio: 'pipe', stderr: 'pipe'})
 
-    console.log(output.status);
-    let uploadOutput = output.stdout.toString()
+      console.log(output.status);
 
-    try {
-      announcement(Array.from(getURLs(uploadOutput))[0])
-    } catch (e) { console.log(e) }
+      let uploadOutput = output.stdout
+      console.log(String(uploadOutput))
 
-  }).error(error => console.log(error))
+      announcement(Array.from(getURLs(String(uploadOutput)))[0])
+  })
 }
 
 exports.live = async function live(episode, announcement) {
   console.log(APP_DIR)
   console.log(SCENE_FILES_DIR)
   let episodeURL = arcURL(episode)
+  let linkURL = episodeURL.replace('raw.githubusercontent', 'github').replace('/master', '/blob/master')
 
   exports.build(episodeURL).then(nothing => {
 
-    try {
+    writeLog('uploading live video')
       let output = spawnSync(`${APP_DIR}/venv/bin/python3`, [`${APP_DIR}/youtube-upload/bin/youtube-upload`,
-        `--title="Automated Reality Channel Episode ${1}`,
-        `--description=Automated Reality Channel Episode ${1} \n This video was automatically generated from this script file ${episodeURL}`,
+        `--title=Automated Reality Channel Episode ${episode}`,
+        `--description=Automated Reality Channel Episode ${episode} \n\n This video was automatically generated from this script file ${linkURL}`,
         `--tags=ARC Channel`,
         `--default-language=en`,
         `--default-audio-language=en`,
         `--client-secrets=${APP_DIR}/safe/client_secret.json`,
         `--embeddable=True`,
         `--privacy=unlisted`,
-      `${SCENE_FILES_DIR}/final.mp4`
-      ], {})
+      `${SCENE_FILES_DIR}/final.mkv`
+      ], {stdio: 'pipe', stderr: 'pipe'})
 
 
       console.log(output.status);
@@ -233,11 +233,7 @@ exports.live = async function live(episode, announcement) {
 
       announcement(Array.from(getURLs(uploadOutput))[0])
 
-    } catch (e) {
-      console.log(e)
-    }
-
-  }).error(error => console.log(error))
+  })
 }
 
 exports.test = async function test(episode, annoucenment) {
@@ -258,5 +254,5 @@ exports.test = async function test(episode, annoucenment) {
     try {
       annoucenment(Array.from(getURLs(uploadOutput))[0])
     } catch (e) { console.log(e) }
-  }).error(error => console.log(error))
+  })
 }
