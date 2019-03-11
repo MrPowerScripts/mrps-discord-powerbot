@@ -165,6 +165,8 @@ exports.publish = async function publish(params, annoucenment) {
   switch (publishType) {
     case 'draft':
       return await exports.draft(episode, annoucenment).error(error => console.log(error))
+    case 'live':
+      return await exports.live(episode, annoucenment).error(error => console.log(error))
     case 'test':
       return await exports.test(episode, annoucenment).error(error => console.log(error))
   }     
@@ -178,17 +180,21 @@ exports.draft = async function draft(episode, announcement) {
 
   exports.build(arcURL(episode)).then(nothing => {
 
-    let output = spawnSync(`${APP_DIR}/venv/bin/python3`, [`${APP_DIR}/youtube-upload/bin/youtube-upload`,
-      `--title="ARC DRAFT"`,
-      `--description=Automated Reality Channel`,
-      `--tags=ARC Channel`,
-      `--default-language=en`,
-      `--default-audio-language=en`,
-      `--client-secrets=${APP_DIR}/safe/client_secret.json`,
-      `--embeddable=True`,
-      `--privacy=unlisted`,
-    `${SCENE_FILES_DIR}/final.mp4`
-    ], { stdio: 'pipe', stderr: 'pipe' })
+    try {
+      let output = spawnSync(`${APP_DIR}/venv/bin/python3`, [`${APP_DIR}/youtube-upload/bin/youtube-upload`,
+        `--title="ARC DRAFT"`,
+        `--description=Automated Reality Channel`,
+        `--tags=ARC Channel`,
+        `--default-language=en`,
+        `--default-audio-language=en`,
+        `--client-secrets=${APP_DIR}/safe/client_secret.json`,
+        `--embeddable=True`,
+        `--privacy=unlisted`,
+      `${SCENE_FILES_DIR}/final.mp4`
+      ], { stdio: 'pipe', stderr: 'pipe' })
+    } catch (e) {
+      console.log(e)
+    }
 
     console.log(output.status);
     let uploadOutput = output.stdout.toString()
@@ -196,6 +202,38 @@ exports.draft = async function draft(episode, announcement) {
     try {
       announcement(Array.from(getURLs(uploadOutput))[0])
     } catch (e) { console.log(e) }
+
+  }).error(error => console.log(error))
+}
+
+exports.live = async function live(episode, announcement) {
+  console.log(APP_DIR)
+  console.log(SCENE_FILES_DIR)
+
+  exports.build(arcURL(episode)).then(nothing => {
+
+    try {
+      let output = spawnSync(`${APP_DIR}/venv/bin/python3`, [`${APP_DIR}/youtube-upload/bin/youtube-upload`,
+        `--title="Automated Reality Channel Episode ${1}`,
+        `--description=Automated Reality Channel Episode ${1}`,
+        `--tags=ARC Channel`,
+        `--default-language=en`,
+        `--default-audio-language=en`,
+        `--client-secrets=${APP_DIR}/safe/client_secret.json`,
+        `--embeddable=True`,
+        `--privacy=unlisted`,
+      `${SCENE_FILES_DIR}/final.mp4`
+      ], { stdio: 'pipe', stderr: 'pipe' })
+
+
+      console.log(output.status);
+      let uploadOutput = output.stdout.toString()
+
+      announcement(Array.from(getURLs(uploadOutput))[0])
+
+    } catch (e) {
+      console.log(e)
+    }
 
   }).error(error => console.log(error))
 }
