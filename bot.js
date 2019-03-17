@@ -1,5 +1,5 @@
 import Discord from 'discord.js'
-import { writeLog } from './utils'
+import { writeLog, botCommandHelp } from './utils'
 import loki from 'lokijs'
 import config from './config.json'
 import { build, publish } from './veditor'
@@ -244,6 +244,9 @@ function bot(bot) {
 
     switch(cmd) {
       // check to see if the bot is alive
+      case "help":
+        msg.reply(botCommandHelp)
+        break
       case "ping":
          writeLog("ping")
          if (hasRole(msg, 'Powered Up')) {

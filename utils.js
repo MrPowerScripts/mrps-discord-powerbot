@@ -18,6 +18,18 @@ export const videoOptions = {
   pixelFormat: 'yuv420p'
 }
 
+export const botCommandHelp = `
+motion - Submit a motion that others can vote on using emoji.
+Votes will be counted and recorded 24 hours after the vote is submitted
+You may only have one motion active at a time. You can use clearmotion to create a new one
+EXAMPLE:
+!motion this is the text of the motion for people to vote on
+
+clearmotion - Clear your active motion
+EXAMPLE:
+!clearmotion
+`
+
 // Configure logger settings
 const logger = winston.createLogger({
   level: `${process.env.NODE_ENV === 'production' ? 'error' : 'debug'}`,
