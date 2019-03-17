@@ -80,14 +80,14 @@ function motionVote(motionText, msg) {
       votes: {yea: 0, nay: 0}
     }
 
-    discord.channels.get(config.channels.motionVotingPublic)
-    .send(`
-New Motion: ${motionText}
-Author: <@${msg.author.id}>
-Voting ends: ${new Date(voteEnd)}
-`).then(msg => motion.msgPublic = msg.id)
+//     discord.channels.get(config.channels.motionVotingPublic)
+//     .send(`
+// New Motion: ${motionText}
+// Author: <@${msg.author.id}>
+// Voting ends: ${new Date(voteEnd)}
+// `).then(msg => motion.msgPublic = msg.id)
     
-    discord.channels.get(config.channels.motionVoting)
+    discord.channels.get(config.channels.motionVotingPublic)
     .send(`
 New Motion: ${motionText}
 Author: <@${msg.author.id}>
@@ -271,9 +271,9 @@ function bot(bot) {
         break
       case "motion":
         writeLog("casting a motion")
-        if (hasRole(msg, 'Powered Up')) {
+        //if (hasRole(msg, 'Powered Up')) {
           motionVote(line, msg)
-        }
+        //}
         break
       case "clearmotion":
         writeLog("clearing motions")
