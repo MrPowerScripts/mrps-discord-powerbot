@@ -111,7 +111,7 @@ function clearMotion(msg) {
   if (activeMotion.length) {
     writeLog(`clearing: ${activeMotion}`)
     
-    discord.channels.get(config.channels.motionVoting)
+    discord.channels.get(config.channels.motionVotingPublic)
       .fetchMessages({around: activeMotion.msg, limit: 1})
       .then(messages => {
         const msg = messages.first()
@@ -145,13 +145,13 @@ ${url}
   msg.react("🔥").then(what => msg.react("💩")); 
 })//.then(msg => motion.msgPublic = msg.id)
   
-  discord.channels.get(config.channels.motionVoting)
-  .send(`
-New draft published:
-${url}
-`).then(msg => {
-  msg.react("🔥").then(what => msg.react("💩")); 
-})
+//   discord.channels.get(config.channels.motionVoting)
+//   .send(`
+// New draft published:
+// ${url}
+// `).then(msg => {
+//   msg.react("🔥").then(what => msg.react("💩")); 
+// })
 }
 
 function updateMotionStatus() {
@@ -162,7 +162,7 @@ function updateMotionStatus() {
     finished.forEach(motion => {
 
       motion.complete = true
-      discord.channels.get(config.channels.motionVoting)
+      discord.channels.get(config.channels.motionVotingPublic)
         .fetchMessages({around: motion.msg, limit: 1})
           .then(messages => {
             let msg = messages.first() 
