@@ -10,3 +10,4 @@ deploy.sh
 workdir
 venv
 safe
+motionsData.json

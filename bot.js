@@ -1,4 +1,5 @@
 import Discord from 'discord.js'
+import fs from 'fs'
 import { writeLog, botCommandHelp } from './utils'
 import loki from 'lokijs'
 import config from './config.json'
@@ -49,7 +50,6 @@ function databaseInitialize() {
 }
 
 console.log(`${process.env.NODE_ENV === 'production' ? 'error' : 'debug'}`)
-
 
 function motionVote(motionText, msg) {
   let motions = db.getCollection('motions')
@@ -182,7 +182,6 @@ function updateMotionStatus() {
               motion.passed = (parseInt(motion.votes.yea) / parseInt(motion.votes.nay).toFixed(2) > .50)
                 ? true
                 : false
-      .error(error => writeLog(error))
               
               msg.edit(`
 ${msg.content}
@@ -229,6 +228,13 @@ function bot(bot) {
     discord.setInterval(() => { // main loop runner
       updateMotionStatus()
     }, 1000)
+
+    discord.setInterval(() => {
+      let motions = db.getCollection('motions')
+
+      fs.writeFileSync('./motionsData.json', JSON.stringify(motions))
+    }, 10000)
+
     writeLog('ready')
   })
 
