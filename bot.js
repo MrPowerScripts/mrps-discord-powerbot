@@ -232,7 +232,7 @@ function bot(bot) {
     discord.setInterval(() => {
       let motions = db.getCollection('motions')
 
-      fs.writeFileSync('./motionsData.json', JSON.stringify({"motions": motions.data}))
+      fs.writeFileSync('./motions/motionsData.json', JSON.stringify({"motions": motions.data}))
     }, 10000)
 
     writeLog('ready')
