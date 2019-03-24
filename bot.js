@@ -254,8 +254,8 @@ function bot(bot) {
         msg.reply(botCommandHelp)
         break
       case "ping":
-         writeLog("ping")
-         if (hasRole(msg, 'Powered Up')) {
+          writeLog("ping")
+          if (hasRole(msg, 'Powered Up')) {
           msg.reply('pong')
         }
         break
